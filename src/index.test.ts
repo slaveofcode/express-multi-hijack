@@ -75,12 +75,18 @@ test('Hijack should be able to override response body with multiple hijack botto
   })
 })
 
-test('Hijack should be able to override response body for non JSON', async () => {
+test('Hijack should be able to override for non JSON response with error', async () => {
   const app = Express()
 
-  app.use(Hijack({ json: false, handler: (_body, _req, res, _next) => {
-    return res.status(200).send('overrided message').end()
-  }}))
+  const errFunCall = jest.fn()
+
+  app.use(Hijack({
+    json: true,
+    handler: (_body, _req, res, _next) => {
+      return res.status(200).send('overrided message').end()
+    },
+    onJsonParseError: errFunCall,
+  }))
 
   app.get('/foo-bar', (_, res) => {
     return res.json({ message: 'foobar' })
@@ -92,4 +98,30 @@ test('Hijack should be able to override response body for non JSON', async () =>
 
   expect(resp.status).toEqual(200)
   expect(Buffer.from(resp.body).toString('utf8')).toEqual('overrided message')
+  expect(errFunCall).toHaveBeenCalled()
+})
+
+test('Hijack should be able to override for non JSON response without error', async () => {
+  const app = Express()
+
+  const errFunNoCall = jest.fn()
+
+  app.use(Hijack({
+    handler: (_body, _req, res, _next) => {
+      return res.status(200).send('overrided message').end()
+    },
+    onJsonParseError: errFunNoCall,
+  }))
+
+  app.get('/foo-bar', (_, res) => {
+    return res.json({ message: 'foobar' })
+  })
+
+  const api = Supertest(app)
+
+  const resp = await api.get('/foo-bar').responseType('blob')
+
+  expect(resp.status).toEqual(200)
+  expect(Buffer.from(resp.body).toString('utf8')).toEqual('overrided message')
+  expect(errFunNoCall).not.toHaveBeenCalled()
 })

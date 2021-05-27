@@ -31,6 +31,10 @@ const Middleware = (config: IHijackConfig) => (req: Request, res: Response, next
   }
 
   res.end = (...args: any[]) => {
+    // if (args[0] && chunks.length > 0) {
+    //   chunks = [] // reset
+    // }
+
     if (args[0]) {
       chunks.push(Buffer.from(args[0]))
     }
