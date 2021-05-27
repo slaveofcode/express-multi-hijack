@@ -120,5 +120,8 @@ app.listen(8080)
 The code above will intercept and change response for [localhost:8080/monday](http://localhost:8080/monday) to `{today: 'Moday', message: 'What a lazy day'}`, and [localhost:8080/friday](http://localhost:8080/friday) to `{message: 'What a wondeful day'}`
 ```
 
+
+For more examples please visit [example](https://github.com/slaveofcode/express-multi-hijack/tree/master/example) directory.
+
 ## LICENSE
 MIT
